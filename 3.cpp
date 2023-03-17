@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <windows.h>
 
 using namespace std;
 
@@ -20,6 +21,8 @@ vector<char> get_letters(string word) {
 }
 
 int main() {
+    SetConsoleOutputCP(1251);
+    SetConsoleCP(1251);
     string sentence1, sentence2;
     getline(cin, sentence1); // Считываем первое предложение
     getline(cin, sentence2); // Считываем второе предложение
@@ -65,13 +68,13 @@ int main() {
     }
 
     // Выводим результаты
-    cout << "Common letters:";
+    cout << "Одинаковые буквы в первых словах:";
     for (char c : common_letters) {
         cout << " " << c;
     }
     cout << endl;
 
-    cout << "Unique letters for the last words:" << endl;
+    cout << "Уникальные буквы в последних словах:" << endl;
     for (char c : unique_letters) {
         cout << c << " ";
     }
