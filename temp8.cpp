@@ -1,78 +1,89 @@
 #include <iostream>
 #include <string>
 
-using namespace std;
-
-const int MAX_EMPLOYEES = 100;
+const int PROGRAMMER = 0;
+const int TESTER = 1;
+const int ANALYST = 2;
+const int MANAGER = 3;
 
 struct Employee {
-    string surname;
-    int experience;
+    std::string last_name;
     int position;
-    double salary;
+    int experience;
 };
 
-void calculateSalary(Employee& emp) {
-    double coefficient;
-    switch (emp.position) {
-    case 1: coefficient = 0.8; break;
-    case 2: coefficient = 0.5; break;
-    case 3: coefficient = 0.4; break;
-    case 4: coefficient = 1.2; break;
-    default: coefficient = 1.0;
-    }
-    emp.salary = 30000 * coefficient;
-}
-
-void calculateBonus(Employee& emp, Employee* employees, int numEmployees) {
-    double totalSalary = 0.0;
-    int numWorkers = 0;
-    for (int i = 0; i < numEmployees; i++) {
-        if (employees[i].position == emp.position) {
-            totalSalary += employees[i].salary;
-            numWorkers++;
-        }
-    }
-    double averageSalary = totalSalary / numWorkers;
-    emp.salary += averageSalary * emp.experience * 0.05;
-}
-
-void printHighestPaid(Employee* employees, int numEmployees, int position) {
-    double highestSalary = 0.0;
-    double highestBonus = 0.0;
-    string highestSurname = "";
-    for (int i = 0; i < numEmployees; i++) {
-        if (employees[i].position == position && employees[i].salary > highestSalary) {
-            highestSalary = employees[i].salary;
-            highestBonus = employees[i].salary * employees[i].experience * 0.05;
-            highestSurname = employees[i].surname;
-        }
-    }
-    cout << "Highest paid " << (position == 1 ? "programmer" : (position == 2 ? "tester" : (position == 3 ? "analyst" : "manager")))
-        << ": " << highestSurname << " (salary: " << highestSalary << " rubles, bonus: " << highestBonus << " rubles)" << endl;
-}
-
+const double SALARY_COEFFICIENT[] = { 0.8, 0.5, 0.4, 1.2 };
 
 int main() {
-    Employee employees[MAX_EMPLOYEES] = {
-        {"Ivanov", 3, 1, 0.0},
-        {"Petrov", 5, 1, 0.0},
-        {"Sidorov", 2, 2, 0.0},
-        {"Smirnov", 4, 2, 0.0},
-        {"Kuznetsov", 1, 3, 0.0},
-        {"Popov", 3, 3, 0.0},
-        {"Vasilyev", 2, 4, 0.0},
-        {"Goncharov", 6, 4, 0.0}
+    const int NUM_EMPLOYEES = 10;
+    Employee employees[NUM_EMPLOYEES] = {
+        {"Ivanov", PROGRAMMER, 3},
+        {"Petrov", PROGRAMMER, 1},
+        {"Sidorov", TESTER, 10},
+        {"Kuznetsov", TESTER, 5},
+        {"Orlov", ANALYST, 4},
+        {"Popov", ANALYST, 2},
+        {"Fedorov", MANAGER, 6},
+        {"Semenov", MANAGER, 3},
+        {"Kozlov", PROGRAMMER, 4},
+        {"Mironov", TESTER, 15}
     };
-    int numEmployees = sizeof(employees) / sizeof(Employee);
-    for (int i = 0; i < numEmployees; i++) {
-        calculateSalary(employees[i]);
-        calculateBonus(employees[i], employees, numEmployees);
+
+    const int NUM_POSITIONS = 4;
+    double total_salary[NUM_POSITIONS] = { 0 };
+    int num_employees[NUM_POSITIONS] = { 0 };
+
+    for (int i = 0; i < NUM_EMPLOYEES; i++) {
+        int pos = employees[i].position;
+        double salary = 30000 * SALARY_COEFFICIENT[pos];
+        total_salary[pos] += salary;
+        num_employees[pos]++;
     }
-    printHighestPaid(employees, numEmployees, 1);
-    printHighestPaid(employees, numEmployees, 2);
-    printHighestPaid(employees, numEmployees, 3);
-    printHighestPaid(employees, numEmployees, 4);
+
+    double avg_salary_all = 0;
+    int num_all_employees = 0;
+    for (int i = 0; i < NUM_POSITIONS; i++) {
+        avg_salary_all += total_salary[i];
+        num_all_employees += num_employees[i];
+    }
+    avg_salary_all /= num_all_employees;
+
+    for (int i = 0; i < NUM_POSITIONS; i++) {
+        double max_salary = 0;
+        int max_salary_idx = -1;
+        for (int j = 0; j < NUM_EMPLOYEES; j++) {
+            if (employees[j].position == i) {
+                double salary = 30000 * SALARY_COEFFICIENT[i];
+                double bonus = avg_salary_all * SALARY_COEFFICIENT[i] * employees[j].experience * 0.05;
+                salary += bonus;
+                if (salary > max_salary) {
+                    max_salary = salary;
+                    max_salary_idx = j;
+                }
+            }
+        }
+        std::string position;
+        if (i == PROGRAMMER) {
+            position = "programmer";
+        }
+        else if (i == TESTER) {
+            position = "tester";
+        }
+        else if (i == ANALYST) {
+            position = "analyst";
+        }
+        else if (i == MANAGER) {
+            position = "manager";
+        }
+        else {
+            position = "";
+        }
+        std::cout << "The highest paid " << position
+            << ": " << employees[max_salary_idx].last_name
+            << ", salary: " << max_salary
+            << ", bonus: " << avg_salary_all * SALARY_COEFFICIENT[i] * employees[max_salary_idx].experience * 0.05 << std::endl;
+
+    }
+
     return 0;
 }
-
