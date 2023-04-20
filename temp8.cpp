@@ -1,111 +1,78 @@
 #include <iostream>
 #include <string>
+
 using namespace std;
 
 const int MAX_EMPLOYEES = 100;
 
-// Определение типа данных для должности сотрудника
-enum Position {
-    PROGRAMMER,
-    TESTER,
-    ANALYST,
-    MANAGER
-};
-
-// Определение типа данных для сотрудника
 struct Employee {
-    string lastName;
-    Position position;
+    string surname;
     int experience;
+    int position;
     double salary;
 };
 
-// Функция для вычисления заработной платы сотрудника
-double calculateSalary(Position position) {
-    switch (position) {
-    case PROGRAMMER:
-        return 0.8 * 30000;
-    case TESTER:
-        return 0.5 * 30000;
-    case ANALYST:
-        return 0.4 * 30000;
-    case MANAGER:
-        return 1.2 * 30000;
-    default:
-        return 0;
+void calculateSalary(Employee& emp) {
+    double coefficient;
+    switch (emp.position) {
+    case 1: coefficient = 0.8; break;
+    case 2: coefficient = 0.5; break;
+    case 3: coefficient = 0.4; break;
+    case 4: coefficient = 1.2; break;
+    default: coefficient = 1.0;
     }
+    emp.salary = 30000 * coefficient;
 }
 
-// Функция для вычисления премии сотрудника
-double calculateBonus(Employee* employees, int numEmployees, Position position) {
-    double totalSalary = 0;
-    int count = 0;
+void calculateBonus(Employee& emp, Employee* employees, int numEmployees) {
+    double totalSalary = 0.0;
+    int numWorkers = 0;
     for (int i = 0; i < numEmployees; i++) {
-        if (employees[i].position == position) {
+        if (employees[i].position == emp.position) {
             totalSalary += employees[i].salary;
-            count++;
+            numWorkers++;
         }
     }
-    double avgSalary = totalSalary / count;
-    return avgSalary * employees[0].experience * 0.05;
+    double averageSalary = totalSalary / numWorkers;
+    emp.salary += averageSalary * emp.experience * 0.05;
 }
 
-// Функция для поиска самого высокооплачиваемого сотрудника для данной должности
-Employee findHighestPaidEmployee(Employee* employees, int numEmployees, Position position) {
-    Employee highestPaidEmployee;
-    double highestSalary = 0;
+void printHighestPaid(Employee* employees, int numEmployees, int position) {
+    double highestSalary = 0.0;
+    double highestBonus = 0.0;
+    string highestSurname = "";
     for (int i = 0; i < numEmployees; i++) {
         if (employees[i].position == position && employees[i].salary > highestSalary) {
             highestSalary = employees[i].salary;
-            highestPaidEmployee = employees[i];
+            highestBonus = employees[i].salary * employees[i].experience * 0.05;
+            highestSurname = employees[i].surname;
         }
     }
-    return highestPaidEmployee;
+    cout << "Highest paid " << (position == 1 ? "programmer" : (position == 2 ? "tester" : (position == 3 ? "analyst" : "manager")))
+        << ": " << highestSurname << " (salary: " << highestSalary << " rubles, bonus: " << highestBonus << " rubles)" << endl;
 }
+
 
 int main() {
-    // Создание списка сотрудников компании
     Employee employees[MAX_EMPLOYEES] = {
-        {"Ivanov", PROGRAMMER, 2, calculateSalary(PROGRAMMER)},
-        {"Petrov", PROGRAMMER, 5, calculateSalary(PROGRAMMER)},
-        {"Sidorov", TESTER, 3, calculateSalary(TESTER)},
-        {"Kuznetsov", ANALYST, 1, calculateSalary(ANALYST)},
-        {"Smirnov", ANALYST, 4, calculateSalary(ANALYST)},
-        {"Fedorov", MANAGER, 7, calculateSalary(MANAGER)},
-        {"Popov", MANAGER, 3, calculateSalary(MANAGER)}
+        {"Ivanov", 3, 1, 0.0},
+        {"Petrov", 5, 1, 0.0},
+        {"Sidorov", 2, 2, 0.0},
+        {"Smirnov", 4, 2, 0.0},
+        {"Kuznetsov", 1, 3, 0.0},
+        {"Popov", 3, 3, 0.0},
+        {"Vasilyev", 2, 4, 0.0},
+        {"Goncharov", 6, 4, 0.0}
     };
-
-    int numEmployees = 7;
-
-    // Вывод информации о самом высокооплачиваемом сотруднике каждой должности
-    cout << "Highest paid employees by position:" << endl;
-    for (int i = 0; i < 4; i++) {
-        Position position = static_cast<Position>(i);
-        Employee highestPaidEmployee = findHighestPaidEmployee(employees, numEmployees, position);
-        double bonus = calculateBonus(employees, numEmployees, position);
-        cout << "Position: ";
-        switch (position) {
-        case PROGRAMMER:
-            cout << "Programmer";
-            break;
-        case TESTER:
-            cout << "Tester";
-            break;
-        case ANALYST:
-            cout << "Analyst";
-            break;
-        case MANAGER:
-            cout << "Manager";
-            break;
-        default:
-            cout << "Unknown";
-        }
-        cout << endl;
-        cout << "Last name: " << highestPaidEmployee.lastName << endl;
-        cout << "Salary: " << highestPaidEmployee.salary << endl;
-        cout << "Bonus: " << bonus << endl;
-        cout << endl;
+    int numEmployees = sizeof(employees) / sizeof(Employee);
+    for (int i = 0; i < numEmployees; i++) {
+        calculateSalary(employees[i]);
+        calculateBonus(employees[i], employees, numEmployees);
     }
-
+    printHighestPaid(employees, numEmployees, 1);
+    printHighestPaid(employees, numEmployees, 2);
+    printHighestPaid(employees, numEmployees, 3);
+    printHighestPaid(employees, numEmployees, 4);
     return 0;
 }
+
