@@ -1,87 +1,92 @@
 #include <iostream>
 #include <string>
+#include <windows.h>
 
-const int PROGRAMMER = 0;
-const int TESTER = 1;
-const int ANALYST = 2;
-const int MANAGER = 3;
+const int programmer = 0;
+const int tester = 1;
+const int analyst = 2;
+const int manager = 3;
 
 struct Employee {
-    std::string last_name;
+    std::string surname;
     int position;
     int experience;
 };
 
-const double SALARY_COEFFICIENT[] = { 0.8, 0.5, 0.4, 1.2 };
+const double zp_coef[] = { 0.8, 0.5, 0.4, 1.2 };
 
 int main() {
+    
+    SetConsoleOutputCP(1251);
+    SetConsoleCP(1251);
+
     const int NUM_EMPLOYEES = 10;
     Employee employees[NUM_EMPLOYEES] = {
-        {"Ivanov", PROGRAMMER, 3},
-        {"Petrov", PROGRAMMER, 1},
-        {"Sidorov", TESTER, 10},
-        {"Kuznetsov", TESTER, 5},
-        {"Orlov", ANALYST, 4},
-        {"Popov", ANALYST, 2},
-        {"Fedorov", MANAGER, 6},
-        {"Semenov", MANAGER, 3},
-        {"Kozlov", PROGRAMMER, 4},
-        {"Mironov", TESTER, 15}
+        {"Иванов", programmer, 3},
+        {"Петров", programmer, 3},
+        {"Сидоров", tester, 10},
+        {"Кузнецов", tester, 5},
+        {"Орлов", analyst, 4},
+        {"Попов", analyst, 2},
+        {"Фёдоров", manager, 6},
+        {"Семёнов", manager, 3},
+        {"Козлов", programmer, 2},
+        {"Миронов", tester, 15}
     };
 
-    const int NUM_POSITIONS = 4;
-    double total_salary[NUM_POSITIONS] = { 0 };
-    int num_employees[NUM_POSITIONS] = { 0 };
+    const int num_pos = 4;
+    double sumzp[num_pos] = { 0 };
+    int num_employees[num_pos] = { 0 };
 
     for (int i = 0; i < NUM_EMPLOYEES; i++) {
         int pos = employees[i].position;
-        double salary = 30000 * SALARY_COEFFICIENT[pos];
-        total_salary[pos] += salary;
+        double zp = 30000 * zp_coef[pos];
+        sumzp[pos] += zp;
         num_employees[pos]++;
     }
 
-    double avg_salary_all = 0;
+    double srednzp = 0;
     int num_all_employees = 0;
-    for (int i = 0; i < NUM_POSITIONS; i++) {
-        avg_salary_all += total_salary[i];
+    for (int i = 0; i < num_pos; i++) {
+        srednzp += sumzp[i];
         num_all_employees += num_employees[i];
     }
-    avg_salary_all /= num_all_employees;
+    srednzp /= num_all_employees;
 
-    for (int i = 0; i < NUM_POSITIONS; i++) {
-        double max_salary = 0;
-        int max_salary_idx = -1;
+    for (int i = 0; i < num_pos; i++) {
+        double maxzp = 0;
+        int maxzp_idx = -1;
         for (int j = 0; j < NUM_EMPLOYEES; j++) {
             if (employees[j].position == i) {
-                double salary = 30000 * SALARY_COEFFICIENT[i];
-                double bonus = avg_salary_all * SALARY_COEFFICIENT[i] * employees[j].experience * 0.05;
-                salary += bonus;
-                if (salary > max_salary) {
-                    max_salary = salary;
-                    max_salary_idx = j;
+                double salary = 30000 * zp_coef[i];
+                double premia = srednzp * zp_coef[i] * employees[j].experience * 0.05;
+                salary += premia;
+                if (salary > maxzp) {
+                    maxzp = salary;
+                    maxzp_idx = j;
                 }
             }
         }
         std::string position;
-        if (i == PROGRAMMER) {
-            position = "programmer";
+        if (i == programmer) {
+            position = "программист";
         }
-        else if (i == TESTER) {
-            position = "tester";
+        else if (i == tester) {
+            position = "тестировщик";
         }
-        else if (i == ANALYST) {
-            position = "analyst";
+        else if (i == analyst) {
+            position = "аналитик";
         }
-        else if (i == MANAGER) {
-            position = "manager";
+        else if (i == manager) {
+            position = "менеджер";
         }
         else {
             position = "";
         }
-        std::cout << "The highest paid " << position
-            << ": " << employees[max_salary_idx].last_name
-            << ", salary: " << max_salary
-            << ", bonus: " << avg_salary_all * SALARY_COEFFICIENT[i] * employees[max_salary_idx].experience * 0.05 << std::endl;
+        std::cout << "Самый высокооплачиваемый " << position
+            << ": " << employees[maxzp_idx].surname
+            << ", зарплата: " << maxzp
+            << ", премия: " << srednzp * zp_coef[i] * employees[maxzp_idx].experience * 0.05 << std::endl;
 
     }
 
