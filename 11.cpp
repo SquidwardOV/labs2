@@ -1,102 +1,98 @@
 #include <iostream>
-#include <cstring>
-#include <Windows.h>
+#include <string>
+#include <windows.h>
 
-using namespace std;
-
-enum Position { Программист, Тестировщик, Аналитик, Менеджер };
+enum Position { PROGRAMMER, TESTER, ANALYST, MANAGER };
 
 struct Employee {
-    string surname;
+    std::string last_name;
     Position position;
     int experience;
-    float zp;
-    float premiya;
 };
 
+const double SALARY_COEFFICIENT[] = { 0.8, 0.5, 0.4, 1.2 };
+
 int main() {
-    SetConsoleCP(1251);
+
     SetConsoleOutputCP(1251);
-    const int n = 4; // количество должностей
-    const float coeffs[n] = { 0.8, 0.5, 0.4, 1.2 }; // коэффициенты зарплат для каждой должности
+    SetConsoleCP(1251);
 
-    const int m = 9; // количество сотрудников
-
-    Employee employees[m] = {
-        {"Иванов", Программист, 5, 0, 0},
-        {"Кручинин", Тестировщик, 3, 0, 0},
-        {"Михалёв", Аналитик, 4, 0, 0},
-        {"Колобов", Менеджер, 10, 0, 0},
-        {"Кузнечиков", Программист, 2, 0, 0},
-        {"Евстигнеев", Программист, 6, 0, 0},
-        {"Смирнов", Менеджер, 1, 0, 0},
-        {"Мазур", Аналитик, 7, 0, 0},
-        {"Евстигнеев", Тестировщик, 6, 0, 0},
+    const int NUM_EMPLOYEES = 10;
+    Employee employees[NUM_EMPLOYEES] = {
+        {"Иванов", PROGRAMMER, 13},
+        {"Петров", PROGRAMMER, 13},
+        {"Сидоров", TESTER, 10},
+        {"Кузнецов", TESTER, 5},
+        {"Орлов", ANALYST, 4},
+        {"Попов", ANALYST, 2},
+        {"Фёдоров", MANAGER, 6},
+        {"Семёнов", MANAGER, 3},
+        {"Козлов", PROGRAMMER, 4},
+        {"Миронов", TESTER, 15}
     };
 
-    // вычисление зарплаты и премии для каждого сотрудника
-    for (int i = 0; i < m; i++) {
-        float zp = 30000 * coeffs[0];
-        float premiya = 0;
-        switch (employees[i].position) {
-        case Программист:
-            zp *= coeffs[0];
-            break;
-        case Тестировщик:
-            zp *= coeffs[1];
-            break;
-        case Аналитик:
-            zp *= coeffs[2];
-            break;
-        case Менеджер:
-            zp *= coeffs[3];
-            break;
-        }
-        premiya = (zp + premiya) * employees[i].experience * 0.05;
-        employees[i].zp = zp;
-        employees[i].premiya = premiya;
+    const int NUM_POSITIONS = 4;
+    double sumzp[NUM_POSITIONS] = { 0 };
+    int num_employees[NUM_POSITIONS] = { 0 };
+
+    // Общая зарплата для каждой должности
+    for (int i = 0; i < NUM_EMPLOYEES; i++) {
+        int pos = employees[i].position;
+        double zp = 30000 * SALARY_COEFFICIENT[pos];
+        sumzp[pos] += zp;
+        num_employees[pos]++;
     }
 
-    // поиск лучших сотрудников для каждой должности
-    Employee best[n];
-    for (int i = 0; i < n; i++) {
-        best[i].zp = -1;
+    //Средняя зарплата сотрудников всех отделов
+    double srednzp = 0;
+    int num_all_employees = 0;
+    for (int i = 0; i < NUM_POSITIONS; i++) {
+        srednzp += sumzp[i];
+        num_all_employees += num_employees[i];
     }
-    for (int i = 0; i < m; i++) {
-        int index = -1;
-        switch (employees[i].position) {
-        case Программист:
-            index = 0;
-            break;
-        case Тестировщик:
-            index = 1;
-            break;
-        case Аналитик:
-            index = 2;
-            break;
-        case Менеджер:
-            index = 3;
-            break;
+    srednzp /= num_all_employees;
+
+    // Вывод самого высокооплачиваемого сотрудника для каждой должности
+    for (int i = 0; i < NUM_POSITIONS; i++) {
+        double maxzp = 0;
+        int maxzp_idx[NUM_EMPLOYEES] = { -1 };
+        int num_maxzp = 0;
+        for (int j = 0; j < NUM_EMPLOYEES; j++) {
+            if (employees[j].position == i) {
+                double salary = 30000 * SALARY_COEFFICIENT[i];
+                double premia = srednzp * SALARY_COEFFICIENT[i] * employees[j].experience * 0.05;
+                salary += premia;
+                if (salary > maxzp) {
+                    maxzp = salary;
+                    num_maxzp = 0;
+                    maxzp_idx[num_maxzp++] = j;
+                }
+                else if (salary == maxzp) {
+                    maxzp_idx[num_maxzp++] = j;
+                }
+            }
         }
-        if (employees[i].zp > best[index].zp) {
-            best[index] = employees[i];
+        std::string position;
+        if (i == PROGRAMMER) {
+            position = "программист";
         }
+        else if (i == TESTER) {
+            position = "тестировщик";
+        }
+        else if (i == ANALYST) {
+            position = "аналитик";
+        }
+        else if (i == MANAGER) {
+            position = "менеджер";
+        }
+        std::cout << "Самый высокооплачиваемый " << position << ": \n";
+        for (int k = 0; k < num_maxzp; k++) {
+            std::cout << employees[maxzp_idx[k]].last_name << " - ";
+            double salary = 30000 * SALARY_COEFFICIENT[i];
+            double premia = srednzp * SALARY_COEFFICIENT[i] * employees[maxzp_idx[k]].experience * 0.05;
+            salary += premia;
+            std::cout << "зарплата " << salary << " руб. (премия " << premia << " руб.)";
+        }
+        std::cout << "\n";
     }
-
-    // вывод результатов
-    cout << "Наиболее высокооплачиваемый программист: ";
-    cout << best[Программист].surname << " (зарплата = " << best[Программист].zp << "руб., премия = " << best[Программист].premiya << "руб.)" << endl;
-    cout << "Наиболее высокооплачиваемый тестировщик: ";
-    cout << best[Тестировщик].surname << " (зарплата = " << best[Тестировщик].zp <<
-        "руб., премия = " << best[Тестировщик].premiya << "руб.)" << endl;
-
-    cout << "Наиболее высокооплачиваемый аналитик: ";
-    cout << best[Аналитик].surname << " (зарплата = " << best[Аналитик].zp <<
-        "руб., премия = " << best[Аналитик].premiya << "руб.)" << endl;
-
-    cout << "Наиболее высокооплачиваемый менеджер: ";
-    cout << best[Менеджер].surname << " (зарплата = " << best[Менеджер].zp <<
-        "руб., премия = " << best[Менеджер].premiya << "руб.)" << endl;
-
-    return 0;
 }
