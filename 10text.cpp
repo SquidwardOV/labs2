@@ -7,10 +7,10 @@ using namespace std;
 struct FileInfo {
     string filename;
     string extension;
-    int day;
-    int month;
-    int year;
-    int size;
+    string day;
+    string month;
+    string year;
+    string size;
 };
 
 const string INPUT_FILE = "catalog.txt";
@@ -34,17 +34,16 @@ int main() {
     }
 
     FileInfo fileinfo;
-    while (infile >> fileinfo.filename >> fileinfo.extension >> fileinfo.day 
-           >> fileinfo.month >> fileinfo.year >> fileinfo.size) {
+    while (!infile.eof()) {
+        getline(infile, fileinfo.filename);
+        getline(infile, fileinfo.extension);
+        getline(infile, fileinfo.day);
+        getline(infile, fileinfo.month);
+        getline(infile, fileinfo.year);
+        getline(infile, fileinfo.size);
         if (fileinfo.extension == extension) {
-            outfile << fileinfo.filename << " " << fileinfo.extension << " "
-                    << fileinfo.day << "." << fileinfo.month << "." 
-                    << fileinfo.year << " " << fileinfo.size << endl;
+            outfile << fileinfo.filename << " " << fileinfo.extension << " " << fileinfo.day << "." << fileinfo.month << "." << fileinfo.year << " " << fileinfo.size << endl;
         }
+
     }
-
-    infile.close();
-    outfile.close();
-
-    return 0;
 }
