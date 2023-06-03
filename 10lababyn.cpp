@@ -3,60 +3,56 @@
 #include <string>
 #include <windows.h>
 
+struct FileInfo {
+    char filename[10];
+    char extension[5];
+    char day[4];
+    char month[4];
+    char year[6];
+    char size[10];
+};
+
+bool sr(char arr1[3], char arr2[3]) {
+    for (int i = 0; i < 3; ++i) {
+        if (arr1[i] != arr2[i]) {
+            return false;
+        }
+    }
+    return true;
+}
 void remove(std::string file_name, std::string file_name_bin) {
-	std::ifstream file(file_name, std::ios::binary | std::ios::in);
-	std::ofstream file_bin(file_name_bin, std::ios::binary | std::ios::out);
-	char tx;
-	if (file.is_open()) {
-		while (!file.eof()) {
-			file.read((char*)&tx, sizeof(tx));
-			file_bin.write((char*)&tx, sizeof(tx));
-		}
-	}
+    std::ifstream file(file_name, std::ios::binary | std::ios::in);
+    std::ofstream file_bin(file_name_bin, std::ios::binary | std::ios::out);
+    FileInfo tx;
+    if (file.is_open()) {
+        while (!file.eof()) {
+            file.read((char*)&tx, sizeof(tx));
+            file_bin.write((char*)&tx, sizeof(tx));
+        }
+    }
 }
 
 int main() {
-	SetConsoleCP(1251);
-	SetConsoleOutputCP(1251);
-	std::string file_name = "catalog.txt";
-	std::string file_name_bin = "bn.bin";
-	std::string text;
-	std::string* arr = new std::string[6];
-	std::string base;
-	int score = 0;
-	char tx;
-	std::cout << "Введите нужное разрешение:" << std::endl;
-	std::cin >> base;
-	remove(file_name, file_name_bin);
-	std::ifstream file_bin(file_name_bin, std::ios::binary | std::ios::in);
-	std::ofstream file_result("result.bin", std::ios::binary | std::ios::out);
-	if (file_bin.is_open()) {
-		while (!file_bin.eof()) {
-			file_bin.read((char*)&tx, sizeof(tx));
-			if (tx != '\n') {
-				text += tx;
-			}
-			else {
-				arr[score] = text;
-				text = "";
-				score++;
-			}
-			if (score == 6) {
-				if (arr[1] == base + "\r") {
-					std::cout << "\n";
-					for (int i = 0; i < 6; ++i) {
-						std::cout << arr[i] << std::endl;
-						for (int j = 0; j < arr[i].size(); ++j) {
-							file_result.write((char*)&arr[i][j], sizeof(arr[i][j]));
-						}
-					}
-					score = 0;
-				}
-				else {
-					score = 0;
-				}
-			}
-		}
-	}
-	delete[]arr;
+    SetConsoleCP(1251);
+    SetConsoleOutputCP(1251);
+    std::string file_name = "catalog.txt";
+    std::string file_name_bin = "bn.bin";
+    char base[5];
+    int score = 0;
+    FileInfo tx;
+    std::cout << "Введите нужное разрешение:" << std::endl;
+    std::cin >> base;
+    base[3] = '\r';
+    base[4] = '\n';
+    remove(file_name, file_name_bin);
+    std::ifstream file_bin(file_name_bin, std::ios::binary | std::ios::in);
+    std::ofstream file_result("result.bin", std::ios::binary | std::ios::out);
+    if (file_bin.is_open()) {
+        while (!file_bin.eof()) {
+            file_bin.read((char*)&tx, sizeof(tx));
+            if (sr(base, tx.extension)) {
+                file_result.write((char*)&tx, sizeof(tx));
+            }
+        }
+    }
 }
